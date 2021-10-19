@@ -31,7 +31,8 @@ on:
 #    types: started
 
 env:
-  REPO_URL: https://github.com/gcp91020/openwrt
+  #REPO_URL: https://github.com/gcp91020/openwrt
+  REPO_URL: https://github.com/gcp91020/immortalwrt
   REPO_BRANCH: master
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: .config
