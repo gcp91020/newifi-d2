@@ -1,9 +1,19 @@
 
-# OpenWrt firmware for K2-PSG1218-A
+cat /etc/hotplug.d/iface/20-firewall
+[ "$ACTION" = "ifup" -a "$INTERFACE" = "wireguard" ] && {
+    ip route add 192.168.128.0/24 via 192.168.125.253
+}
+
+[ "$ACTION" = "ifup" -a "$INTERFACE" = "eth0" ] && {
+  ip route add 192.168.120.0/24 via 192.168.128.249
+  ip route add 192.168.120.0/24 via 192.168.128.249
+}
+
+### OpenWrt firmware for K2-PSG1218-A
 固件采用GitHub Actions不定时自动云编译斐讯K2-PSG1218-A。  
 Auto build OpenWrt firmware for K2-PSG1218-A via GitHub Actions
 
-# 致谢大佬&Thanks
+### 致谢大佬&Thanks
 
 https://github.com/coolsnowwolf/lede
 
