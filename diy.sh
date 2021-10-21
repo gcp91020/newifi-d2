@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 #=================================================
 # Description: DIY script
 # Lisence: MIT
@@ -17,5 +18,21 @@
 # 去除默认主题
 # sed -i '/set luci.main.mediaurlbase=\/luci-static\/bootstrap/d' feeds/luci/themes/luci-theme-bootstrap/root/etc/uci-defaults/30_luci-theme-bootstrap
 
+# current directory is openwrt
+CONF_FILE=".config"
+MOD=`egrep "^CONFIG_TARGET_ramips_[^_]+=y" $CONF_FILE`
+MOD=`awk -v FS='[_=\n]' '{print $4}' <<< $MOD`
+KMOD="https://downloads.openwrt.org/snapshots/targets/ramips/$MOD/kmods/"
+CURL_R=`curl -s "https://downloads.openwrt.org/snapshots/targets/ramips/$MOD/kmods/" | egrep "[0-9a-f]{32}" |sort | tail -n1`
+CURL_N=`awk -v FS='</a>|href=\"|/\">|-' '{print $4}' <<< $CURL_R`
+echo $CURL_N > vermagic
 
-#end
+sed -i "s/grep '=\[ym\]' \$(LINUX_DIR)\/.config.set | LC_ALL=C sort | \$(MKHASH) md5 > \$(LINUX_DIR)\/.vermagic/cp \$(TOPDIR)\/vermagic \$(LINUX_DIR)\/.vermagic/" include/kernel-defaults.mk 
+sed -i 's/STAMP_BUILT:=\$(STAMP_BUILT)_\$(shell \$(SCRIPT_DIR)\/kconfig.pl \$(LINUX_DIR)\/.config | mkhash md5)/STAMP_BUILT:=\$(STAMP_BUILT)_\$(shell cat \$(LINUX_DIR)\/.vermagic)/' package/kernel/linux/Makefile
+
+#sed -i 's#grep \'=[ym]\' \$(LINUX_DIR)/.config.set | LC_ALL=C sort | mkhash md5 > $(LINUX_DIR)/.vermagic#cp \$(TOPDIR)/vermagic \$(LINUX_DIR)/.vermagic#g' include/kernel-defaults.mk 
+#sed -i 's#STAMP_BUILT:=$(STAMP_BUILT)_$(shell $(SCRIPT_DIR)/kconfig.pl $(LINUX_DIR)/.config | mkhash md5)#STAMP_BUILT:=$(STAMP_BUILT)_$(shell cat $(LINUX_DIR)/.vermagic)#g' package/kernel/linux/Makefile
+
+# modify openwrt/blob/master/include/target.mk, conflict with dnsmasq-full
+sed -i 's=dnsmasq \\=#dnsmasq \\=' include/target.mk
+
